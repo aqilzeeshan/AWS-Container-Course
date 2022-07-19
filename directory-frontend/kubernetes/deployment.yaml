@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: directory-frontend
+  labels:
+    app: directory-frontend
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: directory-frontend
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: directory-frontend
+    spec:
+      containers:
+      - image: FILL_ME_IN
+        imagePullPolicy: Always
+        name: directory-frontend
+        ports:
+        - containerPort: 80
+          protocol: TCP

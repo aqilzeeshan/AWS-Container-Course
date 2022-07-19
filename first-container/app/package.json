@@ -1,0 +1,12 @@
+{
+  "name": "sse-messages",
+  "version": "0.0.1",
+  "main": "server.js",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.9.0"
+  }
+}

@@ -1,0 +1,101 @@
+<html>
+
+<head>
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0px;
+      border: 0;
+      overflow: hidden;
+      display: block;
+    }
+  </style>
+  <title>First Docker</title>
+</head>
+
+<body>
+  <canvas id='c' style='position:absolute; left:0px; top:0px;'></canvas>
+
+  <script>
+    var textblockStroke;
+    var offsetX = 0, offsetY = 0;
+    var c = document.getElementById('c'), ctx = c.getContext('2d');
+    var board = [];
+
+    initialize();
+
+    function initialize() {
+      window.addEventListener('resize', resizeCanvasDraw, false);
+      resizeCanvas();
+    }
+
+    function resizeCanvas() {
+      c.width = window.innerWidth;
+      c.height = window.innerHeight;
+      offsetX = 20;
+      offsetY = (c.height / 2) - 8 * 10;
+
+    }
+
+    function resizeCanvasDraw() {
+      resizeCanvas();
+      drawBoard();
+    }
+
+    function colorPixel(x, y, fillStyle) {
+      var xy = { x: x * 20 + offsetX, y: y * 20 + offsetY };
+      ctx.fillStyle = fillStyle;
+      ctx.fillRect(xy.x, xy.y, 20, 20);
+      ctx.strokeStyle = "white";
+      ctx.strokeRect(xy.x, xy.y, 20, 20);
+      ctx.fillStyle = "red";
+    }
+
+    function drawBoard() {
+      resizeCanvas();
+      ctx.clearRect(0, 0, c.width, c.height);
+      for (var i = 0; i < board.length; i++) {
+        for (var j = 0; j < board[0].length; j++) {
+          if (board[i][j]) {
+            colorPixel(j, i, textblockStroke);
+          } else {
+            colorPixel(j, i, '#000000');
+          }
+        }
+      }
+    }
+
+
+    if (!!window.EventSource) {
+      var source = new EventSource('/messages')
+      source.addEventListener('message', function (e) {
+        board = JSON.parse(e.data).board;
+        textblockStroke = JSON.parse(e.data).textblockStroke;
+        drawBoard();
+      }, false)
+
+      source.addEventListener('open', function (e) {
+        console.log("messages open");
+      }, false)
+
+      source.addEventListener('error', function (e) {
+        if (e.eventPhase == EventSource.CLOSED) {
+          source.close()
+        }
+        if (e.target.readyState == EventSource.CLOSED) {
+          console.log("messages closed");
+        }
+        else if (e.target.readyState == EventSource.CONNECTING) {
+          console.log("messages connecting");
+        }
+      }, false)
+    } else {
+      console.log("Your browser doesn't support SSE")
+    }
+
+  </script>
+</body>
+
+</html>

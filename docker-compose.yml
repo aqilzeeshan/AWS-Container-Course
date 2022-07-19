@@ -1,0 +1,38 @@
+version: '2'
+services:
+  directory-frontend:
+    build: ./directory-frontend
+    ports:
+      - 8080:80
+    environment:
+      API_ENDPOINT: "http://directory-service:80"
+
+  directory-service:
+    build: ./directory-service
+    environment:
+      DYNAMO_ENDPOINT_OVERRIDE: "http://local-dynamo:8000"
+      AWS_ACCESS_KEY_ID: fake-credentials-for-local-dynamo
+      AWS_SECRET_ACCESS_KEY: fake-credentials-for-local-dynamo
+    ports:
+      - 5001:80
+
+  local-dynamo:
+    image: amazon/dynamodb-local
+    ports:
+      - 8000:8000
+
+  setup-dynamo:
+    image: amazon/aws-cli
+    depends_on: 
+      - local-dynamo
+    environment:
+      DYNAMO_ENDPOINT_OVERRIDE: "http://local-dynamo:8000"
+      AWS_ACCESS_KEY_ID: fake-credentials-for-local-dynamo
+      AWS_SECRET_ACCESS_KEY: fake-credentials-for-local-dynamo
+      AWS_MAX_ATTEMPTS: 10
+    command: >
+      dynamodb create-table --table-name Employees 
+      --attribute-definitions AttributeName=id,AttributeType=S 
+      --key-schema AttributeName=id,KeyType=HASH 
+      --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 
+      --endpoint-url http://local-dynamo:8000 --region us-east-1

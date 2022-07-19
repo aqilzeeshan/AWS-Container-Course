@@ -1,0 +1,26 @@
+---
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: corp-eks-cluster
+  region: FILL_ME_IN
+  version: "1.21"
+
+managedNodeGroups:
+- name: nodegroup
+  desiredCapacity: 3
+  instanceType: t3.small
+
+cloudWatch:
+  clusterLogging:
+    enableTypes: 
+      - "controllerManager"
+
+iam:
+  withOIDC: true
+  serviceAccounts:
+  - metadata:
+      name: dynamodb-read-only
+    attachPolicyARNs:
+    - FILL_ME_IN
